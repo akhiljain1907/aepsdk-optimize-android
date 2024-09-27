@@ -22,6 +22,19 @@ import com.adobe.marketing.mobile.AdobeError
  * @param adobeError The corresponding AdobeError.
  */
 class AEPOptimizeError(val type: String? = "", val status: Int? = 0, val title: String? = "", val detail: String? = "", var report: Map<String, Any>?, var adobeError: AdobeError?) {
+
+    val serverErrors = listOf(
+        OptimizeConstants.HTTPResponseCodes.tooManyRequests,
+        OptimizeConstants.HTTPResponseCodes.internalServerError,
+        OptimizeConstants.HTTPResponseCodes.serviceUnavailable
+    )
+
+    val networkErrors = listOf(
+        OptimizeConstants.HTTPResponseCodes.badGateway,
+        OptimizeConstants.HTTPResponseCodes.gatewayTimeout
+    )
+
+
     companion object {
         fun getTimeoutError(): AEPOptimizeError {
             return AEPOptimizeError(

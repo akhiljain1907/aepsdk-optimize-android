@@ -93,6 +93,19 @@ class OptimizeExtension extends Extension {
                     OptimizeConstants.JsonValues.SCHEMA_OFFER_IMAGE,
                     OptimizeConstants.JsonValues.SCHEMA_OFFER_TEXT);
 
+    // List containing recoverable network error codes being retried by Edge Network Service
+    private static final List<Integer> recoverableNetworkErrorCodes = Arrays.asList(
+            OptimizeConstants.HTTPResponseCodes.clientTimeout,
+            OptimizeConstants.HTTPResponseCodes.tooManyRequests,
+            OptimizeConstants.HTTPResponseCodes.badGateway,
+            OptimizeConstants.HTTPResponseCodes.serviceUnavailable,
+            OptimizeConstants.HTTPResponseCodes.gatewayTimeout
+    );
+
+    //Map containing the update event IDs and corresponding errors as received from Edge SDK
+    private static final Map<String, AEPOptimizeError> updateRequestEventIdsErrors = new ConcurrentHashMap<>();
+
+
     /**
      * Constructor for {@code OptimizeExtension}.
      *
@@ -123,36 +136,36 @@ class OptimizeExtension extends Extension {
     @Override
     protected void onRegistered() {
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.REQUEST_CONTENT,
-                        this::handleOptimizeRequestContent);
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.REQUEST_CONTENT,
+                this::handleOptimizeRequestContent);
 
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.EDGE,
-                        OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS,
-                        this::handleEdgeResponse);
+                OptimizeConstants.EventType.EDGE,
+                OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS,
+                this::handleEdgeResponse);
 
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.EDGE,
-                        OptimizeConstants.EventSource.ERROR_RESPONSE_CONTENT,
-                        this::handleEdgeErrorResponse);
+                OptimizeConstants.EventType.EDGE,
+                OptimizeConstants.EventSource.ERROR_RESPONSE_CONTENT,
+                this::handleEdgeErrorResponse);
 
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.REQUEST_RESET,
-                        this::handleClearPropositions);
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.REQUEST_RESET,
+                this::handleClearPropositions);
 
         // Register listener - Mobile Core `resetIdentities()` API dispatches generic identity
         // request reset event.
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.GENERIC_IDENTITY,
-                        OptimizeConstants.EventSource.REQUEST_RESET,
-                        this::handleClearPropositions);
+                OptimizeConstants.EventType.GENERIC_IDENTITY,
+                OptimizeConstants.EventSource.REQUEST_RESET,
+                this::handleClearPropositions);
 
         getApi().registerEventListener(
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.CONTENT_COMPLETE,
-                        this::handleUpdatePropositionsCompleted);
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.CONTENT_COMPLETE,
+                this::handleUpdatePropositionsCompleted);
 
         eventsDispatcher.start();
     }
@@ -161,13 +174,13 @@ class OptimizeExtension extends Extension {
     public boolean readyForEvent(@NonNull final Event event) {
         if (OptimizeConstants.EventType.OPTIMIZE.equalsIgnoreCase(event.getType())
                 && OptimizeConstants.EventSource.REQUEST_CONTENT.equalsIgnoreCase(
-                        event.getSource())) {
+                event.getSource())) {
             SharedStateResult configurationSharedState =
                     getApi().getSharedState(
-                                    OptimizeConstants.Configuration.EXTENSION_NAME,
-                                    event,
-                                    false,
-                                    SharedStateResolution.ANY);
+                            OptimizeConstants.Configuration.EXTENSION_NAME,
+                            event,
+                            false,
+                            SharedStateResolution.ANY);
             return configurationSharedState != null
                     && configurationSharedState.getStatus() == SharedStateStatus.SET;
         }
@@ -352,9 +365,9 @@ class OptimizeExtension extends Extension {
 
             final Event edgeEvent =
                     new Event.Builder(
-                                    OptimizeConstants.EventNames.EDGE_PERSONALIZATION_REQUEST,
-                                    OptimizeConstants.EventType.EDGE,
-                                    OptimizeConstants.EventSource.REQUEST_CONTENT)
+                            OptimizeConstants.EventNames.EDGE_PERSONALIZATION_REQUEST,
+                            OptimizeConstants.EventType.EDGE,
+                            OptimizeConstants.EventSource.REQUEST_CONTENT)
                             .setEventData(edgeEventData)
                             .chainToParentEvent(event)
                             .build();
@@ -388,7 +401,7 @@ class OptimizeExtension extends Extension {
                             }
 
                             getApi().dispatch(
-                                            createResponseEventWithError(event, aepOptimizeError));
+                                    createResponseEventWithError(event, aepOptimizeError));
 
                             eventsDispatcher.resume();
                         }
@@ -403,15 +416,19 @@ class OptimizeExtension extends Extension {
                             }
 
                             final Map<String, Object> responseEventData = new HashMap<>();
+                            AEPOptimizeError aepOptimizeError = updateRequestEventIdsErrors.get(requestEventId);
+                            responseEventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
+                                    aepOptimizeError);
+
                             responseEventData.put(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS,
                                     propositionsInProgress);
 
                             final Event responseEvent =
                                     new Event.Builder(
-                                                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
-                                                    OptimizeConstants.EventType.OPTIMIZE,
-                                                    OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                                            OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                                            OptimizeConstants.EventType.OPTIMIZE,
+                                            OptimizeConstants.EventSource.RESPONSE_CONTENT)
                                             .setEventData(responseEventData)
                                             .inResponseToEvent(event)
                                             .build();
@@ -420,10 +437,10 @@ class OptimizeExtension extends Extension {
 
                             final Event updateCompleteEvent =
                                     new Event.Builder(
-                                                    OptimizeConstants.EventNames
-                                                            .OPTIMIZE_UPDATE_COMPLETE,
-                                                    OptimizeConstants.EventType.OPTIMIZE,
-                                                    OptimizeConstants.EventSource.CONTENT_COMPLETE)
+                                            OptimizeConstants.EventNames
+                                                    .OPTIMIZE_UPDATE_COMPLETE,
+                                            OptimizeConstants.EventType.OPTIMIZE,
+                                            OptimizeConstants.EventSource.CONTENT_COMPLETE)
                                             .setEventData(
                                                     new HashMap<String, Object>() {
                                                         {
@@ -480,8 +497,8 @@ class OptimizeExtension extends Extension {
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
                         "handleUpdatePropositionsCompleted - Ignoring Optimize complete event,"
-                            + " event Id is not being tracked for completion as requested scopes is"
-                            + " null or empty.");
+                                + " event Id is not being tracked for completion as requested scopes is"
+                                + " null or empty.");
                 return;
             }
 
@@ -548,8 +565,8 @@ class OptimizeExtension extends Extension {
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
                         "handleEdgeResponse - Ignoring Edge event, either handle type is not"
-                            + " personalization:decisions, or the response isn't intended for this"
-                            + " extension.");
+                                + " personalization:decisions, or the response isn't intended for this"
+                                + " extension.");
                 propositionsInProgress.clear();
                 return;
             }
@@ -583,8 +600,8 @@ class OptimizeExtension extends Extension {
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
                         "handleEdgeResponse - Cannot process the Edge personalization:decisions"
-                            + " event, no propositions with valid offers are present in the Edge"
-                            + " response.");
+                                + " event, no propositions with valid offers are present in the Edge"
+                                + " response.");
                 return;
             }
 
@@ -600,9 +617,9 @@ class OptimizeExtension extends Extension {
 
             final Event edgeEvent =
                     new Event.Builder(
-                                    OptimizeConstants.EventNames.OPTIMIZE_NOTIFICATION,
-                                    OptimizeConstants.EventType.OPTIMIZE,
-                                    OptimizeConstants.EventSource.NOTIFICATION)
+                            OptimizeConstants.EventNames.OPTIMIZE_NOTIFICATION,
+                            OptimizeConstants.EventType.OPTIMIZE,
+                            OptimizeConstants.EventSource.NOTIFICATION)
                             .setEventData(notificationData)
                             .build();
 
@@ -628,34 +645,98 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleEdgeErrorResponse(@NonNull final Event event) {
-        if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
-            Log.debug(
+        try {
+            final Map<String, Object> eventData = event.getEventData();
+            final String requestEventId = OptimizeUtils.getRequestEventId(event);
+
+            if (!OptimizeUtils.isEdgeErrorResponseContent(event)
+                    || OptimizeUtils.isNullOrEmpty(requestEventId)
+                    || !updateRequestEventIdsInProgress.containsKey(requestEventId)) {
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "handleEdgeResponse - Ignoring Edge event, either handle type is not"
+                                + " edge error response content, or the response isn't intended for this"
+                                + " extension.");
+                return;
+            }
+
+            if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
+                //todo
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "handleEdgeErrorResponse - Ignoring the Edge error response event, either event"
+                                + " is null or event data is null/ empty.");
+                return;
+            }
+
+            final String errorType =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.TYPE,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final int errorStatus =
+                    DataReader.optInt(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.STATUS,
+                            OptimizeConstants.UNKNOWN_STATUS
+                    );
+            final String errorTitle =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.TITLE,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final String errorDetail =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.DETAIL,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final Map<String, Object> errorReport =
+                    DataReader.optTypedMap(
+                            Object.class,
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.REPORT,
+                            new HashMap<>()
+                    );
+
+            Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleEdgeErrorResponse - Ignoring the Edge error response event, either event"
-                            + " is null or event data is null/ empty.");
-            return;
+                    "handleEdgeErrorResponse - Decisioning Service error! Error type: (%s),\ntitle: (%s),\ndetail: (%s),\nstatus: (%s),\nreport: (%s)",
+                    errorType,
+                    errorTitle,
+                    errorDetail,
+                    errorStatus,
+                    errorReport);
+
+            // Check if the errorStatus is in the list of recoverable error codes
+            if (recoverableNetworkErrorCodes.contains(errorStatus)) {
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "Recoverable error encountered: Status %d", errorStatus
+                );
+                return;
+            } else {
+                AEPOptimizeError aepOptimizeError = new AEPOptimizeError(
+                        errorType,
+                        errorStatus,
+                        errorTitle,
+                        errorDetail,
+                        errorReport,
+                        null
+                );
+                updateRequestEventIdsErrors.put(requestEventId, aepOptimizeError);
+            }
+        } catch (final Exception e) {
+            Log.warning(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "handleEdgeResponse - Cannot process the Edge Error Response event"
+                            + " due to an exception (%s)!",
+                    e.getLocalizedMessage());
         }
-        final Map<String, Object> eventData = event.getEventData();
-
-        final String errorType =
-                DataReader.optString(
-                        eventData,
-                        OptimizeConstants.Edge.ErrorKeys.TYPE,
-                        OptimizeConstants.ERROR_UNKNOWN);
-        final String errorDetail =
-                DataReader.optString(
-                        eventData,
-                        OptimizeConstants.Edge.ErrorKeys.DETAIL,
-                        OptimizeConstants.ERROR_UNKNOWN);
-
-        Log.warning(
-                OptimizeConstants.LOG_TAG,
-                SELF_TAG,
-                "handleEdgeErrorResponse - Decisioning Service error! Error type: (%s), detail:"
-                        + " (%s)",
-                errorType,
-                errorDetail);
     }
 
     /**
@@ -701,9 +782,9 @@ class OptimizeExtension extends Extension {
 
             final Event responseEvent =
                     new Event.Builder(
-                                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
-                                    OptimizeConstants.EventType.OPTIMIZE,
-                                    OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                            OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                            OptimizeConstants.EventType.OPTIMIZE,
+                            OptimizeConstants.EventSource.RESPONSE_CONTENT)
                             .setEventData(responseEventData)
                             .inResponseToEvent(event)
                             .build();
@@ -756,7 +837,7 @@ class OptimizeExtension extends Extension {
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
                         "handleTrackPropositions - Cannot process the track propositions request"
-                            + " event, provided proposition interactions map is null or empty.");
+                                + " event, provided proposition interactions map is null or empty.");
                 return;
             }
 
@@ -777,10 +858,10 @@ class OptimizeExtension extends Extension {
 
             final Event edgeEvent =
                     new Event.Builder(
-                                    OptimizeConstants.EventNames
-                                            .EDGE_PROPOSITION_INTERACTION_REQUEST,
-                                    OptimizeConstants.EventType.EDGE,
-                                    OptimizeConstants.EventSource.REQUEST_CONTENT)
+                            OptimizeConstants.EventNames
+                                    .EDGE_PROPOSITION_INTERACTION_REQUEST,
+                            OptimizeConstants.EventType.EDGE,
+                            OptimizeConstants.EventSource.REQUEST_CONTENT)
                             .setEventData(edgeEventData)
                             .build();
 
@@ -817,10 +898,10 @@ class OptimizeExtension extends Extension {
     private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
         SharedStateResult configurationSharedState =
                 getApi().getSharedState(
-                                OptimizeConstants.Configuration.EXTENSION_NAME,
-                                event,
-                                false,
-                                SharedStateResolution.ANY);
+                        OptimizeConstants.Configuration.EXTENSION_NAME,
+                        event,
+                        false,
+                        SharedStateResolution.ANY);
         return configurationSharedState != null ? configurationSharedState.getValue() : null;
     }
 
@@ -878,9 +959,9 @@ class OptimizeExtension extends Extension {
         eventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR, error.getErrorCode());
 
         return new Event.Builder(
-                        OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.RESPONSE_CONTENT)
                 .setEventData(eventData)
                 .inResponseToEvent(event)
                 .build();
@@ -891,9 +972,9 @@ class OptimizeExtension extends Extension {
         eventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR, error);
 
         return new Event.Builder(
-                        OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.RESPONSE_CONTENT)
                 .setEventData(eventData)
                 .inResponseToEvent(event)
                 .build();

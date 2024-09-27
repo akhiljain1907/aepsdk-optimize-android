@@ -29,6 +29,7 @@ class OptimizeConstants {
     static final String XDM_NAME = "xdm:name";
 
     static final String ERROR_UNKNOWN = "unknown";
+    static final Integer UNKNOWN_STATUS = 0;
 
     private OptimizeConstants() {}
 
@@ -203,4 +204,19 @@ class OptimizeConstants {
 
         private ErrorData() {}
     }
+
+    static final class HTTPResponseCodes {
+        static final int success = 200;
+        static final int noContent = 204;
+        static final int multiStatus = 207;
+        static final int invalidRequest = 400;
+        static final int clientTimeout = 408;
+        static final int tooManyRequests = 429;
+        static final int internalServerError = 500;
+        static final int badGateway = 502;
+        static final int serviceUnavailable = 503;
+        static final int gatewayTimeout = 504;
+        private HTTPResponseCodes() {}
+    }
+
 }

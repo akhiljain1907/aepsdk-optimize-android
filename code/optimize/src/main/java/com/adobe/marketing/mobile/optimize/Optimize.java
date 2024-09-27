@@ -174,6 +174,15 @@ public class Optimize {
                             }
 
                             if (eventData.containsKey(
+                                    OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
+                                Object error =  eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
+                                if (error instanceof AEPOptimizeError) {
+                                    failWithOptimizeError(callback, (AEPOptimizeError) error);
+                                }
+                            }
+
+
+                            if (eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
                                 final Map<DecisionScope, OptimizeProposition> propositionsMap =
                                         new HashMap<>();
@@ -191,8 +200,8 @@ public class Optimize {
                                     final DecisionScope scope =
                                             new DecisionScope(optimizeProposition.getScope());
                                     propositionsMap.put(scope, optimizeProposition);
+                                    callback.call(propositionsMap);
                                 }
-                                callback.call(propositionsMap);
                             }
                         } catch (DataReaderException e) {
                             failWithOptimizeError(
