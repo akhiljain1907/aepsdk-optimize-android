@@ -10,6 +10,7 @@
 */
 
 package com.adobe.marketing.mobile.optimize
+
 import com.adobe.marketing.mobile.AdobeError
 
 /**
@@ -21,7 +22,15 @@ import com.adobe.marketing.mobile.AdobeError
  * @param report The report of the error.
  * @param adobeError The corresponding AdobeError.
  */
-class AEPOptimizeError(val type: String? = "", val status: Int? = 0, val title: String? = "", val detail: String? = "", var report: Map<String, Any>?, var adobeError: AdobeError?) {
+
+data class AEPOptimizeError(
+    val type: String? = "",
+    val status: Int? = 0,
+    val title: String? = "",
+    val detail: String? = "",
+    var report: Map<String, Any>?,
+    var adobeError: AdobeError?
+) {
 
     val serverErrors = listOf(
         OptimizeConstants.HTTPResponseCodes.tooManyRequests,
@@ -34,8 +43,47 @@ class AEPOptimizeError(val type: String? = "", val status: Int? = 0, val title: 
         OptimizeConstants.HTTPResponseCodes.gatewayTimeout
     )
 
+    fun toMap(): Map<String, Any?> = mapOf(
+        TYPE to type,
+        STATUS to status,
+        TITLE to title,
+        DETAIL to detail,
+        REPORT to report,
+        ADOBE_ERROR to adobeError?.toMap()
+    )
 
     companion object {
+        const val TYPE = "type"
+        const val STATUS = "status"
+        const val TITLE = "title"
+        const val DETAIL = "detail"
+        const val REPORT = "report"
+        const val ADOBE_ERROR = "adobeError"
+        const val ERROR_NAME = "errorName"
+        const val ERROR_CODE = "errorCode"
+
+        fun AdobeError.toMap(): Map<String, Any?> = mapOf(
+            ERROR_NAME to errorName,
+            ERROR_CODE to errorCode,
+        )
+
+        @JvmStatic
+        fun toAEPOptimizeError(data: Map<String, Any?>): AEPOptimizeError {
+            return AEPOptimizeError(
+                type = data[TYPE] as? String ?: "",
+                status = data[STATUS] as? Int ?: 0,
+                title = data[TITLE] as? String ?: "",
+                detail = data[DETAIL] as? String ?: "",
+                report = data[REPORT] as? Map<String, Any>,
+                adobeError = toAdobeError(data[ADOBE_ERROR] as Map<String, Any?>)
+            )
+        }
+
+        @JvmStatic
+        fun toAdobeError(data: Map<String, Any?>): AdobeError {
+            return getAdobeErrorFromStatus(data[STATUS] as Int?)
+        }
+
         fun getTimeoutError(): AEPOptimizeError {
             return AEPOptimizeError(
                 null,
@@ -57,16 +105,19 @@ class AEPOptimizeError(val type: String? = "", val status: Int? = 0, val title: 
                 AdobeError.UNEXPECTED_ERROR
             )
         }
+
+        private fun getAdobeErrorFromStatus(status: Int?): AdobeError = when (status) {
+            408 -> AdobeError.CALLBACK_TIMEOUT
+            400, 403, 404 -> AdobeError.UNEXPECTED_ERROR
+            429, 500, 503 -> AdobeError.UNEXPECTED_ERROR
+            502, 504 -> AdobeError.UNEXPECTED_ERROR
+            else -> AdobeError.UNEXPECTED_ERROR
+        }
     }
+
     init {
         if (adobeError == null) {
-            adobeError = when (status) {
-                408 -> AdobeError.CALLBACK_TIMEOUT
-                400, 403, 404 -> AdobeError.UNEXPECTED_ERROR
-                429, 500, 503 -> AdobeError.UNEXPECTED_ERROR
-                502, 504 -> AdobeError.UNEXPECTED_ERROR
-                else -> AdobeError.UNEXPECTED_ERROR
-            }
+            adobeError = getAdobeErrorFromStatus(status)
         }
     }
 }

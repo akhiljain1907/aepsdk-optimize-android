@@ -11,6 +11,7 @@
 
 package com.adobe.marketing.mobile.optimize;
 
+import static com.adobe.marketing.mobile.optimize.AEPOptimizeError.toAEPOptimizeError;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.adobe.marketing.mobile.AdobeCallback;
@@ -176,8 +177,8 @@ public class Optimize {
                             if (eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
                                 Object error =  eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
-                                if (error instanceof AEPOptimizeError) {
-                                    failWithOptimizeError(callback, (AEPOptimizeError) error);
+                                if (error instanceof Map) {
+                                    failWithOptimizeError(callback, toAEPOptimizeError((Map<String, ? extends Object>) error));
                                 }
                             }
 

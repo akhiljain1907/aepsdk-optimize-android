@@ -417,12 +417,16 @@ class OptimizeExtension extends Extension {
 
                             final Map<String, Object> responseEventData = new HashMap<>();
                             AEPOptimizeError aepOptimizeError = updateRequestEventIdsErrors.get(requestEventId);
-                            responseEventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
-                                    aepOptimizeError);
+                            if(aepOptimizeError != null){
+                                responseEventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
+                                        aepOptimizeError.toMap());
+                                responseEventData.put("propositions",
+                                        aepOptimizeError.toMap());
+                            }
 
-                            responseEventData.put(
+                            /*responseEventData.put(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS,
-                                    propositionsInProgress);
+                                    propositionsInProgress);*/
 
                             final Event responseEvent =
                                     new Event.Builder(
