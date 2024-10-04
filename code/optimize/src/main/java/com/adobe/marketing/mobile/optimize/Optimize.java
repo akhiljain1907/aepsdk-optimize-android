@@ -188,36 +188,35 @@ public class Optimize {
                                 }
                             }
 
-                            if (eventData.containsKey(
+                            if (!eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
+                                return;
+                            }
 
-                                final List<Map<String, Object>> propositionsList;
-                                propositionsList =
-                                        DataReader.getTypedListOfMap(
-                                                Object.class,
-                                                eventData,
-                                                OptimizeConstants.EventDataKeys.PROPOSITIONS);
-                                final Map<DecisionScope, OptimizeProposition> propositionsMap =
-                                        new HashMap<>();
-                                if (propositionsList != null) {
-                                    for (final Map<String, Object> propositionData :
-                                            propositionsList) {
-                                        final OptimizeProposition optimizeProposition =
-                                                OptimizeProposition.fromEventData(propositionData);
-                                        if (optimizeProposition != null
-                                                && !OptimizeUtils.isNullOrEmpty(
-                                                        optimizeProposition.getScope())) {
-                                            final DecisionScope scope =
-                                                    new DecisionScope(
-                                                            optimizeProposition.getScope());
-                                            propositionsMap.put(scope, optimizeProposition);
-                                        }
+                            final List<Map<String, Object>> propositionsList;
+                            propositionsList =
+                                    DataReader.getTypedListOfMap(
+                                            Object.class,
+                                            eventData,
+                                            OptimizeConstants.EventDataKeys.PROPOSITIONS);
+                            final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                    new HashMap<>();
+                            if (propositionsList != null) {
+                                for (final Map<String, Object> propositionData : propositionsList) {
+                                    final OptimizeProposition optimizeProposition =
+                                            OptimizeProposition.fromEventData(propositionData);
+                                    if (optimizeProposition != null
+                                            && !OptimizeUtils.isNullOrEmpty(
+                                                    optimizeProposition.getScope())) {
+                                        final DecisionScope scope =
+                                                new DecisionScope(optimizeProposition.getScope());
+                                        propositionsMap.put(scope, optimizeProposition);
                                     }
                                 }
+                            }
 
-                                if (callback != null) {
-                                    callback.call(propositionsMap);
-                                }
+                            if (callback != null) {
+                                callback.call(propositionsMap);
                             }
                         } catch (DataReaderException e) {
                             failWithOptimizeError(
