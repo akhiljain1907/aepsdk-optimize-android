@@ -108,8 +108,8 @@ data class AEPOptimizeError(
 
         private fun getAdobeErrorFromStatus(status: Int?): AdobeError = when {
             status == OptimizeConstants.HTTPResponseCodes.clientTimeout -> AdobeError.CALLBACK_TIMEOUT
-            serverErrors.contains(status) -> AdobeError.UNEXPECTED_ERROR
-            serverErrors.contains(status) -> AdobeError.UNEXPECTED_ERROR
+            serverErrors.contains(status) -> AdobeError.SERVER_ERROR
+            networkErrors.contains(status) -> AdobeError.NETWORK_ERROR
             else -> AdobeError.UNEXPECTED_ERROR
         }
     }
