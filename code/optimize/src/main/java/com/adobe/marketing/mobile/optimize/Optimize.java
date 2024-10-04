@@ -182,25 +182,32 @@ public class Optimize {
                                 }
                             }
 
-
                             if (eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
-                                final Map<DecisionScope, OptimizeProposition> propositionsMap =
-                                        new HashMap<>();
-                                final Map<String, Object> propositionData =
-                                        DataReader.getTypedMap(
+
+                                final List<Map<String, Object>> propositionsList;
+                                propositionsList =
+                                        DataReader.getTypedListOfMap(
                                                 Object.class,
                                                 eventData,
                                                 OptimizeConstants.EventDataKeys.PROPOSITIONS);
-
-                                final OptimizeProposition optimizeProposition =
-                                        OptimizeProposition.fromEventData(propositionData);
-                                if (optimizeProposition != null
-                                        && !OptimizeUtils.isNullOrEmpty(
+                                final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                        new HashMap<>();
+                                if (propositionsList != null) {
+                                    for (final Map<String, Object> propositionData : propositionsList) {
+                                        final OptimizeProposition optimizeProposition =
+                                                OptimizeProposition.fromEventData(propositionData);
+                                        if (optimizeProposition != null
+                                                && !OptimizeUtils.isNullOrEmpty(
                                                 optimizeProposition.getScope())) {
-                                    final DecisionScope scope =
-                                            new DecisionScope(optimizeProposition.getScope());
-                                    propositionsMap.put(scope, optimizeProposition);
+                                            final DecisionScope scope =
+                                                    new DecisionScope(optimizeProposition.getScope());
+                                            propositionsMap.put(scope, optimizeProposition);
+                                        }
+                                    }
+                                }
+
+                                if (callback != null) {
                                     callback.call(propositionsMap);
                                 }
                             }

@@ -420,13 +420,18 @@ class OptimizeExtension extends Extension {
                             if(aepOptimizeError != null){
                                 responseEventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
                                         aepOptimizeError.toMap());
-                                responseEventData.put("propositions",
-                                        aepOptimizeError.toMap());
                             }
 
-                            /*responseEventData.put(
+                            final List<Map<String, Object>> propositionsList = new ArrayList<>();
+
+                            for (Map.Entry<DecisionScope, OptimizeProposition> entry : propositionsInProgress.entrySet()) {
+                                OptimizeProposition optimizeProposition = entry.getValue();
+                                propositionsList.add(optimizeProposition.toEventData());
+                            }
+
+                            responseEventData.put(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS,
-                                    propositionsInProgress);*/
+                                    propositionsList);
 
                             final Event responseEvent =
                                     new Event.Builder(
