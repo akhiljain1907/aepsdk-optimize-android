@@ -673,7 +673,6 @@ class OptimizeExtension extends Extension {
             }
 
             if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
-                // todo
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,

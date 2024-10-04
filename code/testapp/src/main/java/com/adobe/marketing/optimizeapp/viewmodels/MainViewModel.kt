@@ -11,10 +11,13 @@
  */
 package com.adobe.marketing.optimizeapp.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
+import com.adobe.marketing.mobile.optimize.AEPOptimizeError
+import com.adobe.marketing.mobile.optimize.AdobeCallbackWithOptimizeError
 import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
@@ -94,7 +97,16 @@ class MainViewModel: ViewModel() {
      */
     fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
         optimizePropositionStateMap.clear()
-        Optimize.updatePropositions(decisionScopes, xdm, data)
+        Optimize.updatePropositions(decisionScopes, xdm, data, object: AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>{
+            override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
+                Log.i("Optimize Test App","Propositions updated successfully.")
+            }
+
+            override fun fail(error: AEPOptimizeError?) {
+                Log.i("Optimize Test App","Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
+            }
+
+        })
     }
 
     /**
