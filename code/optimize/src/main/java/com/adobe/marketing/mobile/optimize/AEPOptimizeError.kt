@@ -32,17 +32,6 @@ data class AEPOptimizeError(
     var adobeError: AdobeError?
 ) {
 
-    val serverErrors = listOf(
-        OptimizeConstants.HTTPResponseCodes.tooManyRequests,
-        OptimizeConstants.HTTPResponseCodes.internalServerError,
-        OptimizeConstants.HTTPResponseCodes.serviceUnavailable
-    )
-
-    val networkErrors = listOf(
-        OptimizeConstants.HTTPResponseCodes.badGateway,
-        OptimizeConstants.HTTPResponseCodes.gatewayTimeout
-    )
-
     fun toMap(): Map<String, Any?> = mapOf(
         TYPE to type,
         STATUS to status,
@@ -61,6 +50,17 @@ data class AEPOptimizeError(
         const val ADOBE_ERROR = "adobeError"
         const val ERROR_NAME = "errorName"
         const val ERROR_CODE = "errorCode"
+
+        val serverErrors = listOf(
+            OptimizeConstants.HTTPResponseCodes.tooManyRequests,
+            OptimizeConstants.HTTPResponseCodes.internalServerError,
+            OptimizeConstants.HTTPResponseCodes.serviceUnavailable
+        )
+
+        val networkErrors = listOf(
+            OptimizeConstants.HTTPResponseCodes.badGateway,
+            OptimizeConstants.HTTPResponseCodes.gatewayTimeout
+        )
 
         fun AdobeError.toMap(): Map<String, Any?> = mapOf(
             ERROR_NAME to errorName,
@@ -106,11 +106,10 @@ data class AEPOptimizeError(
             )
         }
 
-        private fun getAdobeErrorFromStatus(status: Int?): AdobeError = when (status) {
-            408 -> AdobeError.CALLBACK_TIMEOUT
-            400, 403, 404 -> AdobeError.UNEXPECTED_ERROR
-            429, 500, 503 -> AdobeError.UNEXPECTED_ERROR
-            502, 504 -> AdobeError.UNEXPECTED_ERROR
+        private fun getAdobeErrorFromStatus(status: Int?): AdobeError = when {
+            status == OptimizeConstants.HTTPResponseCodes.clientTimeout -> AdobeError.CALLBACK_TIMEOUT
+            serverErrors.contains(status) -> AdobeError.UNEXPECTED_ERROR
+            serverErrors.contains(status) -> AdobeError.UNEXPECTED_ERROR
             else -> AdobeError.UNEXPECTED_ERROR
         }
     }

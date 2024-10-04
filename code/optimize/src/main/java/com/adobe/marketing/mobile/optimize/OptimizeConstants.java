@@ -216,7 +216,7 @@ class OptimizeConstants {
         static final int badGateway = 502;
         static final int serviceUnavailable = 503;
         static final int gatewayTimeout = 504;
+
         private HTTPResponseCodes() {}
     }
-
 }

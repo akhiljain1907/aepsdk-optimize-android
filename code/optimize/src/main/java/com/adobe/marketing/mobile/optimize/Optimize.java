@@ -12,6 +12,7 @@
 package com.adobe.marketing.mobile.optimize;
 
 import static com.adobe.marketing.mobile.optimize.AEPOptimizeError.toAEPOptimizeError;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.adobe.marketing.mobile.AdobeCallback;
@@ -176,9 +177,14 @@ public class Optimize {
 
                             if (eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
-                                Object error =  eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
+                                Object error =
+                                        eventData.get(
+                                                OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
                                 if (error instanceof Map) {
-                                    failWithOptimizeError(callback, toAEPOptimizeError((Map<String, ? extends Object>) error));
+                                    failWithOptimizeError(
+                                            callback,
+                                            toAEPOptimizeError(
+                                                    (Map<String, ? extends Object>) error));
                                 }
                             }
 
@@ -194,14 +200,16 @@ public class Optimize {
                                 final Map<DecisionScope, OptimizeProposition> propositionsMap =
                                         new HashMap<>();
                                 if (propositionsList != null) {
-                                    for (final Map<String, Object> propositionData : propositionsList) {
+                                    for (final Map<String, Object> propositionData :
+                                            propositionsList) {
                                         final OptimizeProposition optimizeProposition =
                                                 OptimizeProposition.fromEventData(propositionData);
                                         if (optimizeProposition != null
                                                 && !OptimizeUtils.isNullOrEmpty(
-                                                optimizeProposition.getScope())) {
+                                                        optimizeProposition.getScope())) {
                                             final DecisionScope scope =
-                                                    new DecisionScope(optimizeProposition.getScope());
+                                                    new DecisionScope(
+                                                            optimizeProposition.getScope());
                                             propositionsMap.put(scope, optimizeProposition);
                                         }
                                     }

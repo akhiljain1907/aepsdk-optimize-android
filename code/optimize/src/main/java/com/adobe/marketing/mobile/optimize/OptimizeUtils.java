@@ -139,22 +139,19 @@ class OptimizeUtils {
                         event.getSource());
     }
 
-
     /**
      * Checks whether the given event is a edge error response content response returned from the
      * Edge network.
      *
      * @param event instance of {@link Event}
-     * @return {@code boolean} containing true if event is a edge error response content event, false
-     *     otherwise.
+     * @return {@code boolean} containing true if event is a edge error response content event,
+     *     false otherwise.
      */
     static boolean isEdgeErrorResponseContent(final Event event) {
         return OptimizeConstants.EventType.EDGE.equalsIgnoreCase(event.getType())
                 && OptimizeConstants.EventSource.ERROR_RESPONSE_CONTENT.equalsIgnoreCase(
-                event.getSource());
+                        event.getSource());
     }
-
-
 
     /**
      * Checks whether the given event is an Optimize request content event for retrieving cached
