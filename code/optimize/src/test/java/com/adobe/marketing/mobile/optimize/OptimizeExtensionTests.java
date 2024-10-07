@@ -1269,6 +1269,17 @@ public class OptimizeExtensionTests {
                                             .getResource(
                                                     "json/EVENT_DATA_EDGE_ERROR_RESPONSE.json"),
                                     HashMap.class);
+
+            extension.setUpdateRequestEventIdsInProgress(
+                    "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                    new ArrayList<DecisionScope>() {
+                        {
+                            add(
+                                    new DecisionScope(
+                                            "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
+                        }
+                    });
+
             final Event testEvent =
                     new Event.Builder(
                                     "AEP Error Response",
