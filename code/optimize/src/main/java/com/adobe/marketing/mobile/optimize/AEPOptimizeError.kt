@@ -32,13 +32,13 @@ data class AEPOptimizeError(
     var adobeError: AdobeError?
 ) {
 
-    fun toMap(): Map<String, Any?> = mapOf(
+    fun toEventData(): Map<String, Any?> = mapOf(
         TYPE to type,
         STATUS to status,
         TITLE to title,
         DETAIL to detail,
         REPORT to report,
-        ADOBE_ERROR to adobeError?.toMap()
+        ADOBE_ERROR to adobeError?.toEventData()
     )
 
     companion object {
@@ -62,7 +62,7 @@ data class AEPOptimizeError(
             OptimizeConstants.HTTPResponseCodes.gatewayTimeout
         )
 
-        fun AdobeError.toMap(): Map<String, Any?> = mapOf(
+        fun AdobeError.toEventData(): Map<String, Any?> = mapOf(
             ERROR_NAME to errorName,
             ERROR_CODE to errorCode,
         )

@@ -421,7 +421,7 @@ class OptimizeExtension extends Extension {
                             if (aepOptimizeError != null) {
                                 responseEventData.put(
                                         OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
-                                        aepOptimizeError.toMap());
+                                        aepOptimizeError.toEventData());
                             }
 
                             final List<Map<String, Object>> propositionsList = new ArrayList<>();
