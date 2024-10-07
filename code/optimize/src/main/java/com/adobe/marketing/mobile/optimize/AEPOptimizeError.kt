@@ -51,13 +51,13 @@ data class AEPOptimizeError(
         const val ERROR_NAME = "errorName"
         const val ERROR_CODE = "errorCode"
 
-        val serverErrors = listOf(
+        private val serverErrors = listOf(
             OptimizeConstants.HTTPResponseCodes.tooManyRequests,
             OptimizeConstants.HTTPResponseCodes.internalServerError,
             OptimizeConstants.HTTPResponseCodes.serviceUnavailable
         )
 
-        val networkErrors = listOf(
+        private val networkErrors = listOf(
             OptimizeConstants.HTTPResponseCodes.badGateway,
             OptimizeConstants.HTTPResponseCodes.gatewayTimeout
         )
