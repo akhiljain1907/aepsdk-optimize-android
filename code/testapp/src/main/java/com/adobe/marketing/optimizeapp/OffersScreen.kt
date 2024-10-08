@@ -26,6 +26,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -58,8 +60,8 @@ private val displayHandler: (Offer) -> Unit = { offer ->
 }
 
 @Composable
-fun OffersView(viewModel: MainViewModel, showToast: (String) -> Unit) {
-//    val context = LocalContext.current
+fun OffersView(viewModel: MainViewModel) {
+    val context = LocalContext.current
     var listState = rememberLazyListState()
     Column(
         modifier = Modifier
@@ -111,6 +113,8 @@ fun OffersView(viewModel: MainViewModel, showToast: (String) -> Unit) {
                             JSONOffers(offers = viewModel.optimizePropositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.targetMboxDecisionScope?.name -> {
+                            val errorMsg = viewModel.optimizeErrors.collectAsState().value
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
                             OffersSectionText(sectionName = "Target Offers")
                             TargetOffersView(offers = viewModel.optimizePropositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, listState = listState)
                         }
@@ -182,14 +186,12 @@ fun OffersView(viewModel: MainViewModel, showToast: (String) -> Unit) {
                         }
                     }
                     data["dataKey"] = "5678"
+//                    Toast.makeText(context, "ishita toast", Toast.LENGTH_LONG).show()
                     viewModel.updatePropositions(
                         decisionScopes = decisionScopeList,
                         xdm = mapOf(Pair("xdmKey", "1234")),
                         data = data
-                    ) {
-//                        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                        showToast(it)
-                    }
+                    )
                 }) {
                     Text(
                         text = "Update \n Propositions",

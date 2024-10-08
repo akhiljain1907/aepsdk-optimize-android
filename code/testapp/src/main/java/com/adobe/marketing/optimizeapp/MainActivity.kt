@@ -29,9 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             OptimizeTheme {
-                MainScreen(viewModel) {
-                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
-                }
+                MainScreen(viewModel)
             }
         }
     }

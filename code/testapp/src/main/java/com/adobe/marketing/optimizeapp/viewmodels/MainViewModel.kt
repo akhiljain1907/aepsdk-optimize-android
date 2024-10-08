@@ -24,6 +24,7 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainViewModel: ViewModel() {
 
@@ -45,6 +46,7 @@ class MainViewModel: ViewModel() {
     var targetParamsProfile = mutableStateListOf(OptimizePair("",""))
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
+    var optimizeErrors = MutableStateFlow("")
 
     private val optimizePropositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
         override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
@@ -97,18 +99,16 @@ class MainViewModel: ViewModel() {
      * @param xdm a [Map] of xdm params
      * @param data a [Map] of data
      */
-    fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>, callback: (String) -> Unit) {
+    fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
         optimizePropositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data, object: AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>{
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-//                Toast.makeText(context, "Propositions updated.", Toast.LENGTH_SHORT).show()
                 Log.i("Optimize Test App","Propositions updated successfully. $propositions")
-                callback("Propositions updated successfully. $propositions")
             }
 
             override fun fail(error: AEPOptimizeError?) {
                 Log.i("Optimize Test App","Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
-                callback("Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
+                optimizeErrors.value = "Error in updating Propositions:: ${error?.title ?: "Undefined"}."
             }
 
         })
