@@ -11,7 +11,9 @@
  */
 package com.adobe.marketing.optimizeapp.viewmodels
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.adobe.marketing.mobile.AdobeCallbackWithError
@@ -95,15 +97,18 @@ class MainViewModel: ViewModel() {
      * @param xdm a [Map] of xdm params
      * @param data a [Map] of data
      */
-    fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
+    fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>, callback: (String) -> Unit) {
         optimizePropositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data, object: AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>{
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.i("Optimize Test App","Propositions updated successfully.")
+//                Toast.makeText(context, "Propositions updated.", Toast.LENGTH_SHORT).show()
+                Log.i("Optimize Test App","Propositions updated successfully. $propositions")
+                callback("Propositions updated successfully. $propositions")
             }
 
             override fun fail(error: AEPOptimizeError?) {
                 Log.i("Optimize Test App","Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
+                callback("Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
             }
 
         })

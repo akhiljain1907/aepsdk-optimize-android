@@ -29,7 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(viewModel: MainViewModel, showToast: (String) -> Unit) {
     val navController = rememberNavController()
     var appBarTitle by remember {
         mutableStateOf("Welcome to Optimize Demo")
@@ -59,7 +59,9 @@ fun MainScreen(viewModel: MainViewModel) {
         }
     ) {
         Box(modifier = Modifier.padding(it)) {
-            NavigationConfiguration(navController = navController, viewModel = viewModel)
+            NavigationConfiguration(navController = navController, viewModel = viewModel) {
+                showToast(it)
+            }
         }
     }
 }
@@ -91,13 +93,15 @@ private fun OffersBottomNavigation(
 }
 
 @Composable
-private fun NavigationConfiguration(navController: NavHostController, viewModel: MainViewModel) {
+private fun NavigationConfiguration(navController: NavHostController, viewModel: MainViewModel, showToast: (String) -> Unit) {
     NavHost(
         navController = navController,
         startDestination = BottomNavigationScreen.OffersScreen.route
     ) {
         composable(BottomNavigationScreen.OffersScreen.route) {
-            OffersView(viewModel = viewModel)
+            OffersView(viewModel = viewModel) {
+                showToast(it)
+            }
         }
 
         composable(BottomNavigationScreen.SettingsScreen.route) {

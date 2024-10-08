@@ -13,6 +13,7 @@ package com.adobe.marketing.optimizeapp
 
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,7 +58,8 @@ private val displayHandler: (Offer) -> Unit = { offer ->
 }
 
 @Composable
-fun OffersView(viewModel: MainViewModel) {
+fun OffersView(viewModel: MainViewModel, showToast: (String) -> Unit) {
+//    val context = LocalContext.current
     var listState = rememberLazyListState()
     Column(
         modifier = Modifier
@@ -133,6 +136,7 @@ fun OffersView(viewModel: MainViewModel) {
                 .fillMaxHeight()
                 ) {
                 Button(modifier = Modifier.align(Alignment.CenterStart), onClick = {
+
                     viewModel.updateDecisionScopes()
                     val decisionScopeList = arrayListOf<DecisionScope>()
                     viewModel.textDecisionScope?.also { decisionScopeList.add(it) }
@@ -182,7 +186,10 @@ fun OffersView(viewModel: MainViewModel) {
                         decisionScopes = decisionScopeList,
                         xdm = mapOf(Pair("xdmKey", "1234")),
                         data = data
-                    )
+                    ) {
+//                        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                        showToast(it)
+                    }
                 }) {
                     Text(
                         text = "Update \n Propositions",

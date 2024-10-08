@@ -12,9 +12,11 @@
 package com.adobe.marketing.optimizeapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material.Snackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.adobe.marketing.mobile.MobileCore
@@ -27,7 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             OptimizeTheme {
-                MainScreen(viewModel)
+                MainScreen(viewModel) {
+                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
