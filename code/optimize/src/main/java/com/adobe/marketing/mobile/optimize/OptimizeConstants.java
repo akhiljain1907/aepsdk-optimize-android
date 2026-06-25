@@ -13,7 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 class OptimizeConstants {
     static final String LOG_TAG = "Optimize";
-    static final String EXTENSION_VERSION = "3.6.2";
+    static final String EXTENSION_VERSION = "3.7.0";
     static final String EXTENSION_NAME = "com.adobe.optimize";
     static final String FRIENDLY_NAME = "Optimize";
     static final double GET_RESPONSE_CALLBACK_TIMEOUT = 10;
@@ -170,7 +170,7 @@ class OptimizeConstants {
     }
 
     static final class JsonValues {
-        static final String EE_EVENT_TYPE_PERSONALIZATION = "personalization.request";
+        static final String EE_EVENT_TYPE_PERSONALIZATION = "decisioning.propositionFetch";
         static final String EE_EVENT_TYPE_PROPOSITION_DISPLAY = "decisioning.propositionDisplay";
         static final String EE_EVENT_TYPE_PROPOSITION_INTERACT = "decisioning.propositionInteract";
 

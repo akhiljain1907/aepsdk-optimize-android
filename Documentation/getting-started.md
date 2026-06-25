@@ -236,7 +236,7 @@ On Experience Platform Data Collection, navigate to **Data Collection** > **Tags
 1. Under the **Events** section, click on **Add**.
 2. From the **Extension** dropdown list, select **Adobe Experience Platform Edge Network**.
 3. From the **Event Type** dropdown list, select **AEP Request Event**.
-4. On the right pane, click on **+** to specify **XDM Event Type** equals **personalization.request**.
+4. On the right pane, click on **+** to specify **XDM Event Type** equals **decisioning.propositionFetch**.
 5. Click on **Keep Changes**.
 
 ![Offer Decisioning and Target extension Lifecycle rule Event Configuration](./assets/ajo-decisioning-lifecycle-rule-event.png)
