@@ -170,7 +170,7 @@ class OptimizeConstants {
     }
 
     static final class JsonValues {
-        static final String EE_EVENT_TYPE_PERSONALIZATION = "personalization.request";
+        static final String EE_EVENT_TYPE_PERSONALIZATION = "decisioning.propositionFetch";
         static final String EE_EVENT_TYPE_PROPOSITION_DISPLAY = "decisioning.propositionDisplay";
         static final String EE_EVENT_TYPE_PROPOSITION_INTERACT = "decisioning.propositionInteract";
 

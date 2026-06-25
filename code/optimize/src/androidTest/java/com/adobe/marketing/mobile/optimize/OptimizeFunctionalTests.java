@@ -160,7 +160,7 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeEventData);
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Map<String, Object> personalizationMap =
                 (Map<String, Object>)
@@ -222,7 +222,7 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeEventData);
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Map<String, Object> personalizationMap =
                 (Map<String, Object>)
@@ -290,7 +290,7 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeEventData);
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Map<String, Object> personalizationMap =
                 (Map<String, Object>)
@@ -372,7 +372,7 @@ public class OptimizeFunctionalTests {
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(optimizeDatasetId, edgeEventData.get("datasetId"));
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Assert.assertEquals(
                 "MyXDMValue", ((Map<String, Object>) edgeEventData.get("xdm")).get("MyXDMKey"));
@@ -441,7 +441,7 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeEventData);
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Map<String, Object> personalizationMap =
                 (Map<String, Object>)
@@ -535,7 +535,7 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeEventData);
         Assert.assertTrue(edgeEventData.size() > 0);
         Assert.assertEquals(
-                "personalization.request",
+                "decisioning.propositionFetch",
                 ((Map<String, Object>) edgeEventData.get("xdm")).get("eventType"));
         Map<String, Object> personalizationMap =
                 (Map<String, Object>)
